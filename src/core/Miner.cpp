@@ -537,7 +537,13 @@ void xmrig::Miner::execCommand(char command)
     switch (command) {
     case 'h':
     case 'H':
-        d_ptr->printHashrate(true);
+        // User explicitly requested hashrate: always print, even in quiet mode.
+        {
+            const bool wasQuiet = Log::isQuiet();
+            Log::setQuiet(false);
+            d_ptr->printHashrate(true);
+            Log::setQuiet(wasQuiet);
+        }
         break;
 
     case 'd':
