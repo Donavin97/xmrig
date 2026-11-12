@@ -549,6 +549,12 @@ void xmrig::Miner::execCommand(char command)
         }
         break;
 
+    case 'q':
+    case 'Q':
+        Log::setQuiet(!Log::isQuiet());
+        Log::print(YELLOW_BOLD_S "quiet mode %s", Log::isQuiet() ? "enabled" : "disabled");
+        break;
+
     case 'p':
     case 'P':
         setEnabled(false);
