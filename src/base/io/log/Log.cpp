@@ -95,22 +95,21 @@ public:
         if (Log::isQuiet() && (level == Log::INFO || level == Log::NOTICE)) {
             va_list args_copy;
             va_copy(args_copy, args);
-            const int rc = vsnprintf(nullptr, 0, fmt, args_copy);
+
+            // Buffer large enough for any message we care about; "accepted"
+            // and "best hash" appear early in the formatted output.
+            char buf[2048];
+            const int rc = vsnprintf(buf, sizeof(buf), fmt, args_copy);
             va_end(args_copy);
 
-            if (rc <= 0) {
-                return;
-            }
+            if (rc > 0) {
+                buf[sizeof(buf) - 1] = '\0';
 
-            char buf[512];
-            const size_t n = static_cast<size_t>(rc) < sizeof(buf) - 1 ? static_cast<size_t>(rc) : sizeof(buf) - 1;
-            vsnprintf(buf, n + 1, fmt, args);
-            buf[n] = '\0';
-
-            const bool is_accepted = strstr(buf, "accepted") != nullptr;
-            const bool is_best     = strstr(buf, "best hash") != nullptr;
-            if (!is_accepted && !is_best) {
-                return;
+                const bool is_accepted = strstr(buf, "accepted") != nullptr;
+                const bool is_best     = strstr(buf, "best hash") != nullptr;
+                if (!is_accepted && !is_best) {
+                    return;
+                }
             }
         }
 
