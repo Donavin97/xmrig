@@ -32,13 +32,11 @@
 #include "base/kernel/Platform.h"
 #include "base/net/stratum/Job.h"
 #include "base/net/stratum/NetworkState.h"
-#include "base/tools/Chrono.h"
 #include "base/tools/Object.h"
 #include "base/tools/Timer.h"
 #include "crypto/common/Nonce.h"
 #include "core/config/Config.h"
 #include "core/Controller.h"
-#include "crypto/common/Nonce.h"
 #include "version.h"
 
 
@@ -444,7 +442,6 @@ public:
     Timer *timer        = nullptr;
     uint64_t ticks      = 0;
     uint64_t lastBestHashValue = 0;
-    uint64_t lastRecordLogMSecs = 0;
 
     Taskbar m_taskbar;
 };
@@ -763,21 +760,15 @@ void xmrig::Miner::onTimer(const Timer *)
     }
 
     // Best (most difficult) actual hash produced since the miner started. Log a line
-    // whenever the session best improves, but at most once per minute to avoid a burst
-    // of records early on.
+    // every time the session best improves.
     const uint64_t sessionBest = Nonce::sessionBestHashValue();
     if (sessionBest != d_ptr->lastBestHashValue) {
         d_ptr->lastBestHashValue = sessionBest;
 
-        const uint64_t now = Chrono::steadyMSecs();
-        if (!d_ptr->lastRecordLogMSecs || (now - d_ptr->lastRecordLogMSecs) >= 60000) {
-            d_ptr->lastRecordLogMSecs = now;
-
-            LOG_INFO("%s " WHITE_BOLD("best hash diff this session") " " CYAN_BOLD("%s") " (" CYAN("%llu") ")",
-                     Tags::miner(),
-                     NetworkState::humanDiff(Job::toDiff(sessionBest)).c_str(),
-                     static_cast<unsigned long long>(Job::toDiff(sessionBest)));
-        }
+        LOG_INFO("%s " WHITE_BOLD("best hash diff this session") " " CYAN_BOLD("%s") " (" CYAN("%llu") ")",
+                 Tags::miner(),
+                 NetworkState::humanDiff(Job::toDiff(sessionBest)).c_str(),
+                 static_cast<unsigned long long>(Job::toDiff(sessionBest)));
     }
 
     d_ptr->ticks++;
