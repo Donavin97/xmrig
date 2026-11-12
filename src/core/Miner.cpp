@@ -343,12 +343,13 @@ public:
         }
 #       endif
 
-        LOG_INFO("%s " WHITE_BOLD("speed") " 10s/60s/15m " CYAN_BOLD("%s") CYAN(" %s %s ") CYAN_BOLD("%s") " max " CYAN_BOLD("%s %s") "%s",
+        LOG_INFO("%s " WHITE_BOLD("speed") " 10s/60s/15m/max " CYAN_BOLD("%s %s %s %s ") CYAN_BOLD("%s") "%s",
                  Tags::miner(),
                  Hashrate::format(speed[0],                 num,          16),
                  Hashrate::format(speed[1],                 num + 16,     16),
-                 Hashrate::format(speed[2],                 num + 16 * 2, 16), h,
-                 Hashrate::format({ maxHashrate[algorithm] > 0.0, maxHashrate[algorithm] * scale },   num + 16 * 3, 16), h,
+                 Hashrate::format(speed[2],                 num + 16 * 2, 16),
+                 Hashrate::format({ maxHashrate[algorithm] > 0.0, maxHashrate[algorithm] * scale },   num + 16 * 3, 16),
+                 h,
                  avg_hashrate_buf
                  );
 
